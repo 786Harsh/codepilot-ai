@@ -1,31 +1,44 @@
-## Google Cloud credits are provided for this project `#VertexAISprint`
-Thanks, [Google](https://github.com/google) :)
+# CodePilot AI – Intelligent Pull Request Reviewer
 
-# Gemini AI Code Reviewer
+CodePilot AI is a GitHub Action that automatically reviews pull requests using Google's Gemini AI, providing intelligent feedback to improve code quality, maintainability, security, and performance.
 
-A GitHub Action that automatically reviews pull requests using Google's Gemini AI.
+## ✨ Features
 
-## Features
+- 🤖 Automated pull request reviews using Gemini AI
+- 💡 AI-generated code suggestions and improvements
+- 🔍 Detects potential bugs and code quality issues
+- 🔒 Highlights security concerns
+- ⚡ Recommends performance optimizations
+- 📌 Posts review comments directly on GitHub Pull Requests
 
-- Review your PRs using Gemini API
-- Give use comments and suggestions to improve the source codes
+# Setup
 
-![Demo](assets/img/Demo.png)
-![Demo2](assets/img/Demo2.png)
-[Video Demo](https://www.youtube.com/watch?v=pc1ffEFMIQo)
+## 1. Generate a Gemini API Key
 
-## Setup
+Create a Gemini API key from **Google AI Studio**.
 
-1. To use this GitHub Action, you need an Gemini API key. If you don't have one, sign up for an API key
-   at [Google AI Studio](https://makersuite.google.com/app/apikey).
+## 2. Configure GitHub Secrets
 
-2. Add the Gemini API key as a GitHub Secret in your repository with the name `GEMINI_API_KEY`. You can find more
-   information about GitHub Secrets [here](https://docs.github.com/en/actions/reference/encrypted-secrets).
+Add the following secret to your GitHub repository:
 
-3. Create a `.github/workflows/code-review.yml` file in your repository and add the following content:
+```
+GEMINI_API_KEY
+```
+
+For more information, refer to the GitHub Secrets documentation.
+
+## 3. Create the Workflow
+
+Create the following file:
+
+```
+.github/workflows/code-review.yml
+```
+
+Paste the following workflow configuration:
 
 ```yaml
-name: Gemini AI Code Reviewer
+name: CodePilot AI Review
 
 on:
   issue_comment:
@@ -34,11 +47,12 @@ on:
 permissions: write-all
 
 jobs:
-  gemini-code-review:
+  codepilot-review:
     runs-on: ubuntu-latest
     if: |
       github.event.issue.pull_request &&
       contains(github.event.comment.body, '/gemini-review')
+
     steps:
       - name: PR Info
         run: |
@@ -46,12 +60,12 @@ jobs:
           echo "Issue Number: ${{ github.event.issue.number }}"
           echo "Repository: ${{ github.repository }}"
 
-      - name: Checkout Repo
+      - name: Checkout Repository
         uses: actions/checkout@v3
         with:
           fetch-depth: 0
 
-      - name: Get PR Details
+      - name: Get Pull Request Details
         id: pr
         run: |
           PR_JSON=$(gh api repos/${{ github.repository }}/pulls/${{ github.event.issue.number }})
@@ -63,27 +77,37 @@ jobs:
       - uses: truongnh1992/gemini-ai-code-reviewer@main
         with:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
-          GEMINI_MODEL: gemini-2.5-pro # Optional, default is `gemini-2.5-flash`
+          GEMINI_API_KEY: ${{ secrets.GITHUB_TOKEN }}
+          GEMINI_MODEL: gemini-2.5-pro
           EXCLUDE: "*.md,*.txt,package-lock.json,*.yml,*.yaml"
 ```
-> if you don't set `GEMINI_MODEL`, the default model is `gemini-2.5-flash`. `gemini-2.5-flash` is a next-generation model offering speed and multimodal generation capabilities.  It's suitable for a wide variety of tasks, including code generation, data extraction, and text editing.. For the detailed information about the models, please refer to [Gemini models](https://ai.google.dev/gemini-api/docs/models/gemini).
-4. Commit codes to your repository, and working on your pull requests.
-5. When you're ready to review the PR, you can trigger the workflow by commenting `/gemini-review` in the PR.
 
-## How It Works
+> If `GEMINI_MODEL` is not specified, the default model is `gemini-2.5-flash`, which provides fast and efficient AI-powered code analysis.
 
-This GitHub Action uses the Gemini AI API to provide code review feedback. It works by:
+## Usage
 
-1. **Analyzing the changes**: It grabs the code modifications from your pull request and filters out any files you don't want reviewed.
-2. **Consulting the Gemini model**: It sends chunks of the modified code to the Gemini for analysis.
-3. **Providing feedback**: Gemini AI examines the code and generates review comments.
-4. **Delivering the review**: The Action adds the comments directly to your pull request on GitHub.
+1. Commit your code.
+2. Open a Pull Request.
+3. Comment:
 
-## License
+```
+/gemini-review
+```
 
-This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for more information.
+The GitHub Action will automatically analyze your changes and post review comments on the Pull Request.
 
-## Star History ⭐️
+---
 
-[![Star History Chart](https://api.star-history.com/svg?repos=truongnh1992/gemini-ai-code-reviewer&type=Date)](https://star-history.com/#truongnh1992/gemini-ai-code-reviewer&Date)
+# How It Works
+
+1. Collects modified files from the Pull Request.
+2. Sends the code changes to Google's Gemini AI.
+3. Performs AI-powered code analysis.
+4. Generates suggestions and review comments.
+5. Publishes the results directly to the Pull Request.
+
+---
+
+# License
+
+Licensed under the MIT License. See the [LICENSE](LICENSE) file for more information.
